@@ -1,6 +1,7 @@
 require "pathname"
 require Pathname(__FILE__).dirname + "../../helper"
 
+require 'jdbc/sqlite3'
 require "do_sqlite3"
 require "harbor/contrib/session/data_objects"
 
