@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require "java"
 require "rubygems"
 require "harbor/core"
 
@@ -7,6 +8,10 @@ $:.unshift Dir.pwd
 
 case ARGV[0]
 when "setup"
+  if !ARGV[1]
+    puts "usage: harbor setup <app name> [<root_dir>]"
+    exit 1
+  end
   require "harbor/commands/setup"
   Harbor::Commands::Setup.new(ARGV[1], ARGV[2] || ARGV[1]).run
 

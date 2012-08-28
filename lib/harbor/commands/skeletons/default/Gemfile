@@ -16,8 +16,13 @@ gem "erubis"
 # This are the gems required for compiling assets with "harbor assets" and for
 # compiling assets during development
 group :assets do
-  # Required for both coffee-script and JS compression / uglifier gem
-  gem "therubyracer"
+  platforms :ruby do
+    # Required for both coffee-script and JS compression / uglifier gem
+    gem "therubyracer"
+  end
+  platforms :jruby do
+    gem "therubyrhino"
+  end
 
   # Uncomment the following lines to enable coffeescript
   # gem "coffee-script"

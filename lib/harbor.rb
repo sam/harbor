@@ -1,3 +1,4 @@
+require "java"
 require_relative "harbor/core"
 
 config.assets = Harbor::Assets.new

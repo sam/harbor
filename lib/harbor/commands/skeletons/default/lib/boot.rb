@@ -1,1 +1,1 @@
-require_relative "lib/<@= app_name @>"
+require_relative "<@= app_name @>"

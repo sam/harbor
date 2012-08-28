@@ -127,7 +127,7 @@ class HarborSetupCommandTest < MiniTest::Unit::TestCase
 
   def test_generator_creates_proper_boot_rb
     assert_generated_file_matches "lib/boot.rb", <<-RUBY
-      require_relative "lib/petshop"
+      require_relative "petshop"
     RUBY
   end
 
