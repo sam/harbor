@@ -31,7 +31,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "erubis"
   s.add_runtime_dependency "jruby-rack"
   s.add_runtime_dependency "mime-types"
-  s.add_runtime_dependency "uuidtools"
   s.add_runtime_dependency "tilt"
   s.add_runtime_dependency "logging"
   s.add_runtime_dependency "sprockets"
