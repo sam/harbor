@@ -24,7 +24,8 @@ class Harbor
         @response.render(@template)
         return
       end
-      @response.puts("no template")
+      # TODO: Render default form view
+      @response.puts("Template '#{self.class.name.underscore}' not found.")
     end
 
   end
