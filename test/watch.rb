@@ -60,7 +60,7 @@ class Watcher
   def run_single_spec(underscored_name)
     start = Time::now
     
-    spec = Pathname("test/#{underscored_name}_{test,spec}.rb")
+    spec = Pathname("test/#{underscored_name}_test.rb")
 
     if spec.exist?
       puts "\n --- Running #{spec.basename('.rb')} ---\n\n"
