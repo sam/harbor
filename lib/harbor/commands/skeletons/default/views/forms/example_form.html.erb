@@ -1,1 +1,13 @@
-This is views/forms/example_form.html.erb
+
+<h2>Example Form</h2>
+<% 
+  # Note that we have automatic access to example_form here. The keys
+  # are those available from the ExampleForm class.
+%>
+<% form '/new_user' do %>
+  <table>
+    <tr><td>First Name:</td><td><%= example_form[:first_name] %></td></tr>
+    <tr><td>Age:</td><td><%= example_form[:age] %></td></tr>
+    <tr><td>&nbsp;</td><td><input type="submit"/></td></tr>
+  </table>
+<% end %>

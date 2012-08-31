@@ -43,7 +43,7 @@ class HarborSetupCommandTest < MiniTest::Unit::TestCase
       petshop/env/test.rb
       petshop/env/production.rb
       petshop/forms
-      petshop/forms/example.rb
+      petshop/forms/example_form.rb
       petshop/helpers
       petshop/helpers/general.rb
       petshop/lib
@@ -59,6 +59,8 @@ class HarborSetupCommandTest < MiniTest::Unit::TestCase
       petshop/assets/stylesheets
       petshop/assets/stylesheets/application.css
       petshop/views
+      petshop/views/forms
+      petshop/views/forms/example_form.html.erb
       petshop/views/layouts
       petshop/views/layouts/application.html.erb
       petshop/views/home
@@ -75,6 +77,19 @@ class HarborSetupCommandTest < MiniTest::Unit::TestCase
         class Home < Harbor::Controller
 
           get "/" do
+            # When the ExampleForm instantiated here is rendered it will look for an
+            # example_form.* template under views/forms, and if found it will use
+            # that to render the form. This default behavior can be overridden by
+            # setting the template for the form, e.g.:
+            #
+            # @ex_form.template = "another_form_template"
+
+            @ex_form = ExampleForm.new(request, response)
+            render "home/index"
+          end
+
+          post "/new_user" do
+            @ex_form = ExampleForm.new(request, response)
             render "home/index"
           end
 

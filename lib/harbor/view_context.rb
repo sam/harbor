@@ -12,11 +12,13 @@ class Harbor
 
     attr_accessor :view, :keys
 
-    def initialize(view, variables)
+    def initialize(view, variables, form = nil)
       @view = view
       @keys = Set.new
 
       merge(variables)
+
+      @form = form
     end
 
     def render(partial, variables = nil)

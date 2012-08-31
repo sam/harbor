@@ -5,27 +5,30 @@ class Harbor
   class Form < Bureaucrat::Forms::Form
     extend Bureaucrat::Quickfields
 
-    @@templates = Harbor::TemplateLookup.new(['views/forms'])
-
     def initialize(request, response)
       @request = request
       @response = response
 
-      name = self.class.name.underscore
-      @template = @@templates.find(name) if @@templates.exists?(name)
-
       super(@request.params)
     end
 
-    attr_reader :request, :response, :template
+    attr_reader :request, :response
+    attr_accessor :template
 
     def to_s
-      if @template
-        @response.render(@template)
-        return
+      name = template ? template : self.class.name.underscore
+      if Harbor::View.exists?(name)
+        view = Harbor::View.new(name, nil, self)
+        view.context.instance_eval %Q{
+          def #{self.class.name.underscore}
+            @form
+          end
+        }
+        return view.content
       end
-      # TODO: Render default form view
-      @response.puts("Template '#{self.class.name.underscore}' not found.")
+
+      # No template. Use Bureaucrat's defaults
+      "Template #{name} not found."
     end
 
   end
