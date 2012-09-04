@@ -7,7 +7,20 @@
 <% form '/new_user' do %>
   <table>
     <tr><td>First Name:</td><td><%= example_form[:first_name] %></td></tr>
+    <% example_form[:first_name].errors.each do |err| %>
+      <tr><td colspan="2"><li><%= err %></td></tr>
+    <% end %>
+
     <tr><td>Age:</td><td><%= example_form[:age] %></td></tr>
-    <tr><td>&nbsp;</td><td><input type="submit"/></td></tr>
+    <% example_form[:age].errors.each do |err| %>
+      <tr><td colspan="2"><li><%= err %></td></tr>
+    <% end %>
+
+    <tr><td>Email:</td><td><%= example_form[:email] %></td></tr>
+    <tr><td>Admin:</td><td><%= example_form[:admin] %></td></tr>
+    <tr><td>Telephone:</td><td><%= example_form[:tele] %> (###-###-####)</td></tr>
+    <tr><td>State:</td><td><%= example_form[:state] %></td></tr>
+    <tr><td><%= example_form[:memo].label %>:</td><td><%= example_form[:memo] %></td></tr>
+    <tr><td>&nbsp;</td><td><button>Submit</button></td></tr>
   </table>
 <% end %>
