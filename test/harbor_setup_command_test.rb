@@ -65,6 +65,7 @@ class HarborSetupCommandTest < MiniTest::Unit::TestCase
       petshop/views/layouts/application.html.erb
       petshop/views/home
       petshop/views/home/index.html.erb
+      petshop/views/home/success.html.erb
     }
 
     skeleton = Dir["#{@app_root}/**/*"].map { |path| path.sub "#{@temp_path}/", "" }
@@ -90,7 +91,11 @@ class HarborSetupCommandTest < MiniTest::Unit::TestCase
 
           post "/new_user" do
             @ex_form = ExampleForm.new(request, response)
-            render "home/index"
+            if @ex_form.valid?
+              render "home/success"
+            else
+              render "home/index"
+            end
           end
 
         end

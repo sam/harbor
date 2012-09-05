@@ -15,7 +15,11 @@ class <@= app_class @>
 
     post "/new_user" do
       @ex_form = ExampleForm.new(request, response)
-      render "home/index"
+      if @ex_form.valid?
+        render "home/success"
+      else
+        render "home/index"
+      end
     end
 
   end

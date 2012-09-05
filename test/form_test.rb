@@ -9,6 +9,11 @@ class FormTest < MiniTest::Unit::TestCase
     integer :age, min_value: 18
   end
 
+  class BooleanForm < Harbor::Form
+    integer :score
+    boolean :awesome
+  end
+
   def setup
     @request = Harbor::Test::Request.new
     @response = Harbor::Response.new(@request)
@@ -22,9 +27,6 @@ class FormTest < MiniTest::Unit::TestCase
   end
 
   def test_form_with_attributes
-    tf = TestForm.new(@request, @response)
-    refute tf.valid?
-
     @request.params[:memo] = "A memo."
     @request.params[:first_name] = "James"
     @request.params[:age] = 21
@@ -42,8 +44,17 @@ class FormTest < MiniTest::Unit::TestCase
     assert tf.valid?
   end
 
-  def test_template
-    tf = TestForm.new(@request, @response)
+  def test_required_boolean_not_in_request
+    @request[:score] = '9000'
+    # @request[:awesome] = false
+    bf = BooleanForm.new(@request, @response)
+    assert bf.valid?
+
+    ['false', 'true', false, true, nil].each do |bool|
+      @request[:awesome] = bool
+      bf = BooleanForm.new(@request, @response)
+      assert bf.valid?
+    end
 
   end
 

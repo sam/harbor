@@ -48,8 +48,8 @@ class Harbor
 
     attr_accessor :content_type, :context
 
-    def initialize(view, context = {}, form = nil)
-      @context = context.is_a?(ViewContext) ? context : ViewContext.new(self, context, form)
+    def initialize(view, context = {})
+      @context = context.is_a?(ViewContext) ? context : ViewContext.new(self, context)
       @filename = view
     end
 
