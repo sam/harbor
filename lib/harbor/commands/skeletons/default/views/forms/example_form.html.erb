@@ -1,0 +1,46 @@
+
+<h2>Example Form</h2>
+<% 
+  # Note that we have automatic access to example_form here. The keys
+  # are those defined in the ExampleForm class.
+%>
+<% form '/new_user' do %>
+  <table>
+    <tr><td><%= example_form[:first_name].label %>:</td><td><%= example_form[:first_name] %></td></tr>
+    <% example_form[:first_name].errors.each do |err| %>
+      <tr><td colspan="2"><li><%= err %></td></tr>
+    <% end %>
+
+    <tr><td>Age:</td><td><%= example_form[:age] %></td></tr>
+    <% example_form[:age].errors.each do |err| %>
+      <tr><td colspan="2"><li><%= err %></td></tr>
+    <% end %>
+
+    <tr><td>Email:</td><td><%= example_form[:email] %></td></tr>
+    <% example_form[:email].errors.each do |err| %>
+      <tr><td colspan="2"><li><%= err %></td></tr>
+    <% end %>
+
+    <tr><td>Admin:</td><td><%= example_form[:admin] %></td></tr>
+    <tr><td>Telephone:</td><td><%= example_form[:tele] %> (###-###-####)</td></tr>
+    <% example_form[:tele].errors.each do |err| %>
+      <tr><td colspan="2"><li><%= err %></td></tr>
+    <% end %>
+
+    <tr><td>State:</td><td><%= example_form[:state] %></td></tr>
+    <% example_form[:state].errors.each do |err| %>
+      <tr><td colspan="2"><li><%= err %></td></tr>
+    <% end %>
+    <tr><td><%= example_form[:memo].label %>:</td><td><%= example_form[:memo] %></td></tr>
+    <tr><td>&nbsp;</td><td><button>Submit</button></td></tr>
+  </table>
+<% end %>
+
+<h2>Errors</h2>
+<p>Here is a list of all the validation errors that currently exist for this form:</p>
+<%= example_form.errors %>
+
+<h2>Data without widgets</h2>
+<p>To view the data stored in the form without rendering the widget, use the <code>data</code> method. For example:</p>
+<pre>&gt; example_form[:email].data
+ =&gt; "<%= example_form[:email].data %>"</pre>

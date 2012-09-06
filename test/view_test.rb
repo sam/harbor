@@ -20,8 +20,8 @@ class ViewTest < MiniTest::Unit::TestCase
   end
 
   def test_passing_a_partial_as_a_variable
-    view = Harbor::View.new("new", :form => Harbor::View.new("_form"))
-    assert_equal("NEW PAGE\nFORM PARTIAL", view.to_s)
+    view = Harbor::View.new("new", {:a_form => Harbor::View.new("_form")})
+    assert_equal("NEW PAGE\nFORM PARTIAL\n", view.to_s)
   end
 
   def test_render_with_layout

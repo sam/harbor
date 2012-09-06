@@ -29,6 +29,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "listen"
 
   s.add_runtime_dependency "erubis"
+  s.add_runtime_dependency "bureaucrat"
   s.add_runtime_dependency "jruby-rack"
   s.add_runtime_dependency "mime-types"
   s.add_runtime_dependency "tilt"

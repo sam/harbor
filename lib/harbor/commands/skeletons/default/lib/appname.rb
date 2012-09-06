@@ -24,3 +24,7 @@ end
 Dir[config.root + 'controllers/*.rb'].each do |controller|
   require controller
 end
+
+Dir[config.root + 'forms/*.rb'].each do |form|
+  require form
+end

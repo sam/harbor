@@ -23,6 +23,7 @@ require "harbor/errors"
 require "harbor/cache"
 require "harbor/controller"
 require "harbor/dispatcher"
+require "harbor/form"
 require "harbor/consoles"
 require "harbor/reloader"
 
