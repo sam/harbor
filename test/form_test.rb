@@ -11,7 +11,7 @@ class FormTest < MiniTest::Unit::TestCase
 
   class BooleanForm < Harbor::Form
     integer :score
-    boolean :awesome
+    boolean :awesome, required: false
   end
 
   def setup
@@ -44,7 +44,7 @@ class FormTest < MiniTest::Unit::TestCase
     assert tf.valid?
   end
 
-  def test_required_boolean_not_in_request
+  def test_boolean_field
     @request[:score] = '9000'
     # @request[:awesome] = false
     bf = BooleanForm.new(@request, @response)

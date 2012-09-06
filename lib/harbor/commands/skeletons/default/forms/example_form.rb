@@ -5,7 +5,7 @@ class ExampleForm < Harbor::Form
   string :first_name, label: 'Your first name'
   integer :age, min_value: 18
   email :email
-  boolean :admin
+  boolean :admin, required: false
   regex :tele, /^\d{3}-\d{3}-\d{4}$/, required: false
   choice :state, [['', 'Select a state'],
                   ['AL', 'Alabama'],

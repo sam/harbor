@@ -9,15 +9,6 @@ class Harbor
       @request = request
       @response = response
 
-      # Since HTML checkboxes do not submit any data when they are unchecked,
-      # the following is needed to make sure required boolean fields are set to
-      # false when no associated request parameter is present
-      self.class.base_fields.each do |name, field|
-        if field.is_a?(Bureaucrat::Fields::BooleanField) && field.required && @request[name].nil?
-          @request[name] = false
-        end
-      end
-
       super(@request.params)
     end
 
