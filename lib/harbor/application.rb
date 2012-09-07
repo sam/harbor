@@ -1,9 +1,3 @@
-if RUBY_PLATFORM =~ /java/
-  require "jruby-rack"
-else
-  require "rack"
-end
-
 require "yaml"
 
 require_relative "events"

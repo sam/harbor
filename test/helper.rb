@@ -14,10 +14,7 @@ require 'mocha'
 require "uri"
 require Pathname(__FILE__).dirname.parent + "lib/harbor"
 require "harbor/mail/mailer"
-require "harbor/logging"
-require "harbor/logging/appenders/email"
 require "harbor/test/test"
-require "rack/test"
 require "builder"
 
 ENV['RACK_ENV'] = 'test'

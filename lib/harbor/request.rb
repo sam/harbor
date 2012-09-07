@@ -1,8 +1,7 @@
-require "rack/request"
 require_relative "session"
 
 class Harbor
-  class Request < Rack::Request
+  class Request
 
     BOT_AGENTS = [
       /yahoo.*slurp/i,

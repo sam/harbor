@@ -1,7 +1,6 @@
 require "java"
 require_relative "harbor/core"
 
-config.assets = Harbor::Assets.new
 config.helpers = Harbor::ViewHelpers.new
 config.locales.default = Harbor::Locale::default
 
