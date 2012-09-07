@@ -2,7 +2,6 @@ require "rubygems"
 
 unless ENV["TRAVIS"]
   require "bundler/setup"
-  require "bundler/gem_tasks"
 end
 
 require "buildr/jetty"
@@ -45,7 +44,8 @@ define "harbor" do
   
   package(:gem).spec do |spec|
     spec.name = "harbor"
-    spec.summary = s.description = "Harbor Framework"
+    spec.summary = "Harbor Web Framework"
+    spec.description = "JRuby Web Framework"
     spec.author = "Sam Smoot"
     spec.homepage = "https://github.com/sam/harbor"
     spec.email = "ssmoot@gmail.com"
@@ -89,6 +89,6 @@ end
 
 task :rdoc do
   sh <<EOS.strip
-rdoc -T harbor#{" --op " + ENV["OUTPUT_DIRECTORY"] if ENV["OUTPUT_DIRECTORY"]} --line-numbers --main README --title "Harbor Documentation" --exclude "lib/harbor/commands/*" lib/harbor.rb lib/harbor README
+rdoc -T harbor#{" --op " + ENV["OUTPUT_DIRECTORY"] if ENV["OUTPUT_DIRECTORY"]} --line-numbers --main README.textile --title "Harbor Documentation" --exclude "lib/harbor/commands/*" lib/harbor.rb lib/harbor README.textile
 EOS
 end
