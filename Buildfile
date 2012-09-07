@@ -1,33 +1,6 @@
 require "rubygems"
 require "pathname"
-
-unless ENV["TRAVIS"]
-  require "bundler/setup"
-end
-
-require "buildr/jetty"
-
-# require "ci/reporter/rake/minitest"
-# require "rake/testtask"
-
-lib = File.expand_path('../lib/', __FILE__)
-$:.unshift lib unless $:.include?(lib)
-require "harbor/version"
-
-# Tests
-# task :default => [:test]
-
-# Rake::TestTask.new do |t|
-#   t.libs << "test"
-#   t.test_files = FileList["test/**/*_test.rb"]
-#   t.verbose = true
-# end
-
-# desc "Run tests with code coverage enabled"
-# task :coverage do
-#   ENV['COVERAGE'] = 'true'
-#   Rake::Task["test"].execute
-# end
+require "bundler/setup" unless ENV["TRAVIS"]
 
 Project.local_task :jetty
 
@@ -42,6 +15,7 @@ define "harbor" do
 
   # compile.with transitive("org.jruby:jruby:jar:1.7.0.preview2")
   
+  require "lib/harbor/version"
   package(:gem).spec do |spec|
     spec.name = "harbor"
     spec.summary = "Harbor Web Framework"
@@ -93,6 +67,38 @@ define "harbor" do
     end
   end
   
+  require "rake/testtask"
+  Rake::TestTask.new do |t|
+    t.libs << "test"
+    t.test_files = FileList["test/**/*_test.rb"]
+    t.verbose = true
+  end
+  
+  require "rdoc/task"  
+  desc "Generate RDoc documentation"
+  RDoc::Task.new do |rdoc|
+    spec = package(:gem).spec
+    
+    rdoc.rdoc_dir = "doc"
+    rdoc.title = spec.name
+    rdoc.options = spec.rdoc_options.clone
+    rdoc.rdoc_files.include('lib/**/*.rb')
+    rdoc.rdoc_files.include spec.extra_rdoc_files
+  
+    # The lines below come from:
+    #   https://github.com/apache/buildr/blob/trunk/rakelib/doc.rake#L35
+    # include rake source for better inheritance rdoc
+    # rdoc.rdoc_files.include('rake/lib/**.rb')
+  end
+  
+  require "simplecov"
+  desc "Run tests with code coverage enabled"
+  task "coverage" do
+    SimpleCov.start
+    Rake::Task["test"].execute
+  end
+  
+  require "buildr/jetty"
   task "jetty" => [ package(:war), jetty.use ] do |task|
     jetty.deploy("http://localhost:8080", task.prerequisites.first)
     puts 'Press CTRL-C to stop Jetty'
