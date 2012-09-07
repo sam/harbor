@@ -85,10 +85,11 @@ define "harbor" do
     end
     Thread.stop
   end
-end
-
-task :rdoc do
-  sh <<EOS.strip
-rdoc -T harbor#{" --op " + ENV["OUTPUT_DIRECTORY"] if ENV["OUTPUT_DIRECTORY"]} --line-numbers --main README.textile --title "Harbor Documentation" --exclude "lib/harbor/commands/*" lib/harbor.rb lib/harbor README.textile
+  
+  task "rdoc" do
+    sh <<EOS.strip
+rdoc -T harbor --line-numbers --main README.textile --title "Harbor Documentation" \
+--exclude "lib/harbor/commands/*" lib/harbor.rb lib/harbor README.textile
 EOS
+  end
 end
