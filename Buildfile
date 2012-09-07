@@ -50,7 +50,7 @@ define "harbor" do
     spec.homepage = "https://github.com/sam/harbor"
     spec.email = "ssmoot@gmail.com"
     spec.version = Harbor::VERSION
-    spec.platform = "java"
+    spec.platform = Gem::Platform::RUBY
     spec.files         = `git ls-files`.split("\n")
     spec.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
     spec.executables   = "harbor"
@@ -68,6 +68,7 @@ define "harbor" do
     spec.add_dependency "buildr"
     # spec.add_dependency "jruby-openssl"
     
+    spec.add_development_dependency "ffi-ncurses"
     spec.add_development_dependency "simplecov"
     spec.add_development_dependency "rdoc", ">= 2.4.2"
     spec.add_development_dependency "builder"
@@ -78,6 +79,13 @@ define "harbor" do
     spec.add_runtime_dependency "erubis"
     spec.add_runtime_dependency "mime-types"
     spec.add_runtime_dependency "tilt"
+  end
+  
+  desc "Re-generate harbor.gemspec based on the Buildfile specification"
+  task "gemspec" do
+    File::open("harbor.gemspec", "w+") do |f|
+      f << package(:gem).spec.to_ruby
+    end
   end
   
   task "jetty" => [ package(:war), jetty.use ] do |task|
