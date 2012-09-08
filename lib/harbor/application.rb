@@ -1,11 +1,8 @@
-require "jruby-rack"
-
 require "yaml"
 
 require_relative "events"
 require_relative "request"
 require_relative "response"
-require_relative "block_io"
 require_relative "events/dispatch_request_event"
 require_relative "events/not_found_event"
 require_relative "events/server_error_event"

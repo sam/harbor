@@ -1,9 +1,8 @@
-require "rack/request"
-require_relative "session"
-
 class Harbor
-  class Request < Rack::Request
+  class Request
 
+    include_package "javax.servlet.http"
+    
     BOT_AGENTS = [
       /yahoo.*slurp/i,
       /googlebot/i,
@@ -40,13 +39,57 @@ class Harbor
     ].freeze
 
     attr_accessor :layout
-
-    def initialize(application, env)
-      raise ArgumentError.new("+env+ must be a Hash") unless env.is_a?(Hash)
-      @application = application
-      super(env)
+    
+    def initialize(http_request)
+      unless http_request.is_a?(HttpServletRequest)
+        raise ArgumentError.new("+http_request+ must be a HttpServletRequest")
+      end
+      
+      @http_request = http_request
     end
 
+    class Headers
+      def initialize(http_request)
+        @http_request = http_request
+      end
+      
+      def [](name)
+        values = @http_request.headers(name)
+        
+        if values.blank?
+          nil
+        elsif values.size > 1
+          values
+        else
+          values[0]
+        end
+      end
+    end
+    
+    def headers
+      @headers ||= Headers.new(@http_request)    
+    end
+    
+    class Cookies
+      def initialize(http_request)
+        @http_request = http_request
+      end
+      
+      def [](name)
+        cookies.detect { |cookie| cookie.name == name }
+      end
+      
+      private
+      
+      def cookies
+        @cookies ||= @http_request.cookies
+      end
+    end
+    
+    def cookies
+      @cookies ||= Cookies.new(@http_request)
+    end
+    
     def fetch(key, default_value = nil)
       if (value = self[key]).nil? || value == ''
         default_value
@@ -58,18 +101,6 @@ class Harbor
     def bot?
       user_agent = env["HTTP_USER_AGENT"]
       BOT_AGENTS.any? { |bot_agent| user_agent =~ bot_agent }
-    end
-
-    def unload_session
-      @session = nil
-    end
-
-    def session(key = nil)
-      @session ||= Harbor::Session.new(self, key)
-    end
-
-    def session?
-      @session
     end
 
     def remote_ip
@@ -87,17 +118,11 @@ class Harbor
     end
 
     def params
-      params = begin
-        if @env["rack.input"].nil?
-          self.GET
-        else
-          self.GET && self.GET.update(self.POST || {})
-        end
-      rescue EOFError => e
-        self.GET
-      end
-
-      params || {}
+      {}
+    end
+    
+    def session
+      @http_request.session
     end
 
     def protocol
@@ -184,6 +209,10 @@ class Harbor
 
         accepted_formats == ['all'] ? ['html'] : accepted_formats
       end
+    end
+    
+    def xhr?
+      @http_request.header("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
     end
 
     # Returns the data received in the request body.

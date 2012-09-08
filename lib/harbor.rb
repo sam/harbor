@@ -1,6 +1,8 @@
+require "java"
+Dir[Pathname(__FILE__).dirname.parent + "jars/*.jar"].each { |jar| require jar }
+
 require_relative "harbor/core"
 
-config.assets = Harbor::Assets.new
 config.helpers = Harbor::ViewHelpers.new
 config.locales.default = Harbor::Locale::default
 

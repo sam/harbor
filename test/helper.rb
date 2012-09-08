@@ -2,7 +2,7 @@ require "rubygems"
 require "bundler/setup" unless Object::const_defined?("Bundler")
 
 if ENV['COVERAGE']
-  require 'simplecov'
+  require "simplecov"
   SimpleCov.start do
     add_filter "/test/"
   end
@@ -14,9 +14,6 @@ require 'mocha'
 require "uri"
 require Pathname(__FILE__).dirname.parent + "lib/harbor"
 require "harbor/mail/mailer"
-require "harbor/logging"
-require "harbor/logging/appenders/email"
-require "harbor/test/test"
 require "builder"
 
 (Harbor::Mail::Builder.private_instance_methods - Object.private_instance_methods).each do |method|
@@ -81,6 +78,37 @@ class String
 
 end
 
+class Test
+  class HttpRequest
+
+    include javax.servlet.http.HttpServletRequest
+    
+    def initialize(headers = {}, cookies = [])
+      @headers = headers
+      @cookies = cookies
+    end
+    
+    def header(name)
+      headers(name)
+    end
+
+    def headers(name)
+      @headers[name]
+    end
+    
+    def cookies
+      @cookies
+    end
+    
+    def session
+      @session ||= {}
+    end
+    
+    def messages
+      @messages ||= []
+    end
+  end
+end
 
 class MiniTest::Unit::TestCase
 

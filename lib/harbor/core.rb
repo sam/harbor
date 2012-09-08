@@ -1,6 +1,6 @@
 require "rubygems"
 require "pathname"
-require "forwardable"
+require "time"
 
 $:.unshift(Pathname(__FILE__).dirname.parent.expand_path.to_s)
 
@@ -15,7 +15,6 @@ require "harbor/hooks"
 require "harbor/file_store"
 require "harbor/file"
 require "harbor/checksum"
-require "harbor/assets"
 require "harbor/router"
 require "harbor/plugin"
 require "harbor/mime"
