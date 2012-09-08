@@ -1,6 +1,5 @@
 require "rubygems"
 require "pathname"
-require "bundler/setup" unless ENV["TRAVIS"]
 
 Project.local_task :jetty
 
@@ -11,9 +10,18 @@ repositories.remote << "http://repo1.maven.org/maven2/"
 define "harbor" do
   project.version = "0.9.0"
   
-  compile.with transitive("org.mortbay.jetty:servlet-api:jar:3.0.20100224")
-
+  SERVLET_API = "javax.servlet:javax.servlet-api:jar:3.0.1"
+  JETTY_UTIL  = "org.eclipse.jetty:jetty-util:jar:8.1.5.v20120716"
+  
+  compile.with transitive(SERVLET_API)
+  compile.with transitive(JETTY_UTIL)
+  
   # compile.with transitive("org.jruby:jruby:jar:1.7.0.preview2")
+  
+  task "jars" do
+    artifact(SERVLET_API).invoke
+    artifact(JETTY_UTIL).invoke
+  end
   
   require "lib/harbor/version"
   package(:gem).spec do |spec|
@@ -94,7 +102,7 @@ define "harbor" do
   require "simplecov"
   desc "Run tests with code coverage enabled"
   task "coverage" do
-    SimpleCov.start
+    ENV["COVERAGE"] = "true"
     Rake::Task["test"].execute
   end
   

@@ -1,4 +1,6 @@
 require "java"
+Dir[Pathname(__FILE__).dirname.parent + "jars/*.jar"].each { |jar| require jar }
+
 require_relative "harbor/core"
 
 config.helpers = Harbor::ViewHelpers.new

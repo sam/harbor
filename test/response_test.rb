@@ -1,11 +1,13 @@
-require_relative 'helper'
+#!/usr/bin/env jruby
+
+require_relative "helper"
 
 class ResponseTest < MiniTest::Unit::TestCase
 
   def setup
     Harbor::View::paths.unshift Pathname(__FILE__).dirname + "fixtures/views"
     Harbor::View::layouts.default("layouts/application")
-    @request = Harbor::Test::Request.new
+    @request = Harbor::Request.new(Test::HttpRequest.new)
     @response = Harbor::Response.new(@request)
   end
 
@@ -163,185 +165,6 @@ class ResponseTest < MiniTest::Unit::TestCase
   end
 
   ##
-  # STREAM_FILE / SEND_FILE with X-Sendfile enabled
-  ##
-
-  def test_stream_file_with_string_io_and_x_sendfile
-    @request.env["HTTP_X_SENDFILE_TYPE"] = "X-Sendfile"
-    @response.stream_file(StringIO.new("test"))
-
-    assert !@response.headers["X-Sendfile"]
-    assert_equal "4", @response.headers["Content-Length"]
-    assert_equal "application/octet-stream", @response.headers["Content-Type"]
-  end
-
-  def test_stream_file_with_io_and_x_sendfile
-    @request.env["HTTP_X_SENDFILE_TYPE"] = "X-Sendfile"
-    file = File.open(__FILE__)
-    @response.stream_file(file)
-
-    assert !@response.headers["X-Sendfile"]
-    assert_equal File.size(__FILE__).to_s, @response.headers["Content-Length"]
-    assert_equal "application/octet-stream", @response.headers["Content-Type"]
-  ensure
-    file.close
-  end
-
-  ##
-  # Apache X-Sendfile Tests
-  ##
-  def test_apache_stream_file_with_filename_and_x_sendfile
-    @request.env["HTTP_X_SENDFILE_TYPE"] = "X-Sendfile"
-    @response.stream_file(__FILE__)
-
-    assert_equal __FILE__, @response.headers["X-Sendfile"]
-    assert_equal File.size(__FILE__).to_s, @response.headers["Content-Length"]
-    assert_equal "text/x-script.ruby", @response.headers["Content-Type"]
-  end
-
-  def test_apache_stream_file_with_pathname_and_x_sendfile
-    @request.env["HTTP_X_SENDFILE_TYPE"] = "X-Sendfile"
-    @response.stream_file(Pathname(__FILE__))
-
-    assert_equal Pathname(__FILE__).expand_path.to_s, @response.headers["X-Sendfile"]
-    assert_equal File.size(__FILE__).to_s, @response.headers["Content-Length"]
-    assert_equal "text/x-script.ruby", @response.headers["Content-Type"]
-  end
-
-  def test_apache_stream_file_with_harbor_file_and_x_sendfile
-    @request.env["HTTP_X_SENDFILE_TYPE"] = "X-Sendfile"
-    store = Harbor::FileStore::Local.new(File.dirname(__FILE__))
-    file = store.get(File.basename(__FILE__))
-
-    @response.stream_file(file)
-
-    assert_equal __FILE__, @response.headers["X-Sendfile"]
-    assert_equal File.size(__FILE__).to_s, @response.headers["Content-Length"]
-    assert_equal "text/x-script.ruby", @response.headers["Content-Type"]
-  end
-
-  ##
-  # nginx X-Sendfile tests NOT using X-Accel-Mapping
-  ##
-  def test_nginx_stream_file_with_filename_and_x_sendfile
-    @request.env["HTTP_X_SENDFILE_TYPE"] = "X-Accel-Redirect"
-    @response.stream_file(__FILE__)
-
-    assert_equal __FILE__, @response.headers["X-Accel-Redirect"]
-    assert_equal File.size(__FILE__).to_s, @response.headers["Content-Length"]
-    assert_equal "text/x-script.ruby", @response.headers["Content-Type"]
-  end
-
-  def test_nginx_stream_file_with_pathname_and_x_sendfile
-    @request.env["HTTP_X_SENDFILE_TYPE"] = "X-Accel-Redirect"
-    @response.stream_file(Pathname(__FILE__))
-
-    assert_equal Pathname(__FILE__).expand_path.to_s, @response.headers["X-Accel-Redirect"]
-    assert_equal File.size(__FILE__).to_s, @response.headers["Content-Length"]
-    assert_equal "text/x-script.ruby", @response.headers["Content-Type"]
-  end
-
-  def test_nginx_stream_file_with_harbor_file_and_x_sendfile
-    @request.env["HTTP_X_SENDFILE_TYPE"] = "X-Accel-Redirect"
-    store = Harbor::FileStore::Local.new(File.dirname(__FILE__))
-    file = store.get(File.basename(__FILE__))
-
-    @response.stream_file(file)
-
-    assert_equal __FILE__, @response.headers["X-Accel-Redirect"]
-    assert_equal File.size(__FILE__).to_s, @response.headers["Content-Length"]
-    assert_equal "text/x-script.ruby", @response.headers["Content-Type"]
-  end
-
-  ##
-  # nginx X-Sendfile tests using X-Accel-Mapping
-  ##
-  def test_nginx_stream_file_with_filename_and_x_sendfile_with_mapping
-    @request.env["HTTP_X_SENDFILE_TYPE"] = "X-Accel-Redirect"
-    @request.env["HTTP_X_ACCEL_MAPPING"] = "#{Pathname(__FILE__).dirname}=/some/other/path"
-
-    @response.stream_file(__FILE__)
-
-    assert_equal File.join("/some/other/path", File.basename(__FILE__)), @response.headers["X-Accel-Redirect"]
-    assert_equal File.size(__FILE__).to_s, @response.headers["Content-Length"]
-    assert_equal "text/x-script.ruby", @response.headers["Content-Type"]
-  end
-
-  def test_nginx_stream_file_with_pathname_and_x_sendfile_with_mapping
-    @request.env["HTTP_X_SENDFILE_TYPE"] = "X-Accel-Redirect"
-    @request.env["HTTP_X_ACCEL_MAPPING"] = "#{Pathname(__FILE__).dirname}=/some/other/path"
-
-    @response.stream_file(Pathname(__FILE__))
-
-    assert_equal "/some/other/path/#{File.basename(__FILE__)}", @response.headers["X-Accel-Redirect"]
-    assert_equal File.size(__FILE__).to_s, @response.headers["Content-Length"]
-    assert_equal "text/x-script.ruby", @response.headers["Content-Type"]
-  end
-
-  def test_nginx_stream_file_with_harbor_file_and_x_sendfile_with_mapping
-    @request.env["HTTP_X_SENDFILE_TYPE"] = "X-Accel-Redirect"
-    @request.env["HTTP_X_ACCEL_MAPPING"] = "#{Pathname(__FILE__).dirname}=/some/other/path"
-
-    store = Harbor::FileStore::Local.new(File.dirname(__FILE__))
-    file = store.get(File.basename(__FILE__))
-
-    @response.stream_file(file)
-
-    assert_equal "/some/other/path/#{File.basename(__FILE__)}", @response.headers["X-Accel-Redirect"]
-    assert_equal File.size(__FILE__).to_s, @response.headers["Content-Length"]
-    assert_equal "text/x-script.ruby", @response.headers["Content-Type"]
-  end
-
-  ##
-  # nginx ModZip tests
-  ##
-
-  def test_nginx_mod_zip_send_files_has_properly_formatted_body
-    @request.env["HTTP_MOD_ZIP_ENABLED"] = "True"
-
-    file = Harbor::File.new(Pathname(__FILE__))
-    file.name = "My Custom Filename.rb"
-
-    @response.send_files("test.zip", [file])
-
-    assert_equal "#{Zlib.crc32(File.read(file.path)).to_s(16)} #{File.size(file.path)} #{File.expand_path(file.path)} #{file.name}\n", @response.buffer_string
-
-    assert_equal "zip", @response.headers["X-Archive-Files"]
-    assert_equal "attachment; filename=\"test.zip\"", @response.headers["Content-Disposition"]
-    assert_equal "application/zip", @response.headers["Content-Type"]
-  end
-
-  def test_nginx_mod_zip_send_files_has_properly_formatted_body_for_non_standard_file_objects
-    @request.env["HTTP_MOD_ZIP_ENABLED"] = "True"
-
-    file = Class.new do
-      attr_accessor :path, :name
-      def initialize(path, name)
-        @path = path
-        @name = name
-      end
-    end.new(Pathname(__FILE__), "My Custom Filename.rb")
-
-    @response.send_files("test.zip", [file])
-
-    assert_equal "#{Zlib.crc32(File.read(file.path)).to_s(16)} #{File.size(file.path)} #{File.expand_path(file.path)} #{file.name}\n", @response.buffer_string
-
-    assert_equal "zip", @response.headers["X-Archive-Files"]
-    assert_equal "attachment; filename=\"test.zip\"", @response.headers["Content-Disposition"]
-    assert_equal "application/zip", @response.headers["Content-Type"]
-  end
-
-  def test_nginx_mod_zip_has_appropriate_header
-    @request.env["HTTP_MOD_ZIP_ENABLED"] = "True"
-
-    file = Harbor::File.new(Pathname(__FILE__))
-
-    @response.send_files("test", [file])
-
-    assert_equal "zip", @response.headers["X-Archive-Files"]
-  end
-
-  ##
   # CACHE
   ##
 
@@ -359,8 +182,7 @@ class ResponseTest < MiniTest::Unit::TestCase
 
   def test_cache_returns_304_with_matching_if_modified_since_request_header
     time = Time.now
-    request = Harbor::Test::Request.new
-    request.env["HTTP_IF_MODIFIED_SINCE"] = time.httpdate
+    request = Harbor::Request.new(Test::HttpRequest.new({ "HTTP_IF_MODIFIED_SINCE" => time.httpdate }))
     response = Harbor::Response.new(request)
 
     called = false
@@ -372,7 +194,7 @@ class ResponseTest < MiniTest::Unit::TestCase
   end
 
   def test_cache_yields_with_no_if_modified_since_header
-    request = Harbor::Test::Request.new
+    request = Test::HttpRequest.new
     response = Harbor::Response.new(request)
 
     called = false
@@ -381,8 +203,7 @@ class ResponseTest < MiniTest::Unit::TestCase
   end
 
   def test_cache_yields_with_recent_updated_at
-    request = Harbor::Test::Request.new
-    request.env["HTTP_IF_MODIFIED_SINCE"] = Time.now.httpdate
+    request = Harbor::Request.new(Test::HttpRequest.new({ "HTTP_IF_MODIFIED_SINCE" => Time.now.httpdate }))
     response = Harbor::Response.new(request)
 
     called = false
@@ -426,9 +247,9 @@ class ResponseTest < MiniTest::Unit::TestCase
   def test_cache_hit_with_ttl_returns_no_content
     with_cache do |cache|
       time = Time.now
-      request = Harbor::Test::Request.new
-      request.env["HTTP_IF_MODIFIED_SINCE"] = time.httpdate
+      request = Harbor::Request.new(Test::HttpRequest.new({"HTTP_IF_MODIFIED_SINCE" => time.httpdate}))
       response = Harbor::Response.new(request)
+      
       response.cache("key", time, 10) {}
 
       assert_throws(:halt) do
@@ -441,9 +262,9 @@ class ResponseTest < MiniTest::Unit::TestCase
   def test_cache_miss_with_modified_since_but_expired_ttl
     with_cache do |cache|
       time = Time.now
-      request = Harbor::Test::Request.new
-      request.env["HTTP_IF_MODIFIED_SINCE"] = time.httpdate
+      request = Harbor::Request.new(Test::HttpRequest.new({"HTTP_IF_MODIFIED_SINCE" => time.httpdate}))
       response = Harbor::Response.new(request)
+      
       response.cache("key", time, 10) {}
 
       Time.warp(20) do
@@ -453,9 +274,8 @@ class ResponseTest < MiniTest::Unit::TestCase
   end
 
   def test_content_type_header_deleted_with_204
-    response = Harbor::Test::Response.new
-    request = Harbor::Test::Request.new
-    response.request = request
+    request = Harbor::Request.new(Test::HttpRequest.new)
+    response = Harbor::Response.new(request)
 
     response.status = 204
 
@@ -464,9 +284,8 @@ class ResponseTest < MiniTest::Unit::TestCase
   end
 
   def test_content_type_header_deleted_with_304
-    response = Harbor::Test::Response.new
-    request = Harbor::Test::Request.new
-    response.request = request
+    request = Harbor::Request.new(Test::HttpRequest.new)
+    response = Harbor::Response.new(request)
 
     response.status = 304
 
@@ -479,9 +298,8 @@ class ResponseTest < MiniTest::Unit::TestCase
   ##
 
   def test_redirect_without_session
-    response = Harbor::Test::Response.new
-    request = Harbor::Test::Request.new
-    response.request = request
+    request = Harbor::Request.new(Test::HttpRequest.new)
+    response = Harbor::Response.new(request)
 
     response.message("error", "Error")
     response.redirect("/redirect", {})
@@ -489,10 +307,8 @@ class ResponseTest < MiniTest::Unit::TestCase
   end
 
   def test_redirect_with_session
-    response = Harbor::Test::Response.new
-    request = Harbor::Test::Request.new
-    request.session = Harbor::Test::Session.new
-    response.request = request
+    request = Harbor::Request.new(Test::HttpRequest.new)
+    response = Harbor::Response.new(request)
 
     response.message("error", "Error")
     response.redirect("/redirect", {})
@@ -500,9 +316,8 @@ class ResponseTest < MiniTest::Unit::TestCase
   end
 
   def test_redirect_with_encoded_url_and_params
-    response = Harbor::Test::Response.new
-    request = Harbor::Test::Request.new
-    response.request = request
+    request = Harbor::Request.new(Test::HttpRequest.new)
+    response = Harbor::Response.new(request)
 
     response.message("error", "Error")
     response.redirect("/redirect?key=Stuff", {})

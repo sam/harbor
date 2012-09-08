@@ -82,12 +82,12 @@ class Harbor
     def stream_file(path_or_io, content_type = nil)
       io = BlockIO.new(path_or_io)
 
-      if io.path && (header = @request.env["HTTP_X_SENDFILE_TYPE"])
+      if io.path && (header = @request.headers["HTTP_X_SENDFILE_TYPE"])
         case header
         when "X-Sendfile"
           @headers["X-Sendfile"] = io.path
         when "X-Accel-Redirect"
-          if mapping = @request.env['HTTP_X_ACCEL_MAPPING']
+          if mapping = @request.headers['HTTP_X_ACCEL_MAPPING']
             internal, external = mapping.split('=', 2).map { |p| p.strip }
             @headers["X-Accel-Redirect"] = io.path.sub(/^#{Regexp::escape(internal)}/i, external)
           else
@@ -137,7 +137,7 @@ class Harbor
     #
     ##
     def send_files(name, files)
-      if @request.env["HTTP_MOD_ZIP_ENABLED"]
+      if @request.headers["HTTP_MOD_ZIP_ENABLED"]
         filenames = []
         files.each do |file|
           path = ::File.expand_path(file.path)
@@ -188,7 +188,7 @@ class Harbor
       @headers["Last-Modified"] = last_modified
       @headers["Cache-Control"] = "max-age=#{ttl}, must-revalidate" if ttl
 
-      modified_since = @request.env["HTTP_IF_MODIFIED_SINCE"]
+      modified_since = @request.headers["HTTP_IF_MODIFIED_SINCE"]
 
       if modified_since == last_modified && (!store || store.get(key))
         not_modified!
@@ -299,25 +299,6 @@ class Harbor
     def message(key, message, use_session=true)
       @request.session if use_session
       messages[key] = message
-    end
-
-    def to_a
-      messages.clear if messages.expired?
-
-      if @request.session?
-        session = @request.session
-        set_cookie(session.key, session.save)
-      end
-
-      self.content_type ||= "html" unless self.status == 304
-      # headers cannot be arrays
-      self.headers.each_pair do |key, value|
-        self.headers[key] = value.join("\n") if value.is_a?(Array)
-      end
-
-      self.buffer.rewind if self.buffer.respond_to?(:rewind)
-
-      [self.status, self.headers, self.buffer]
     end
 
     def [](key)

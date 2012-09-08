@@ -1,6 +1,6 @@
 require "rubygems"
 require "pathname"
-require "forwardable"
+require "time"
 
 $:.unshift(Pathname(__FILE__).dirname.parent.expand_path.to_s)
 
