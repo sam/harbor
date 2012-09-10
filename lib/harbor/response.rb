@@ -1,10 +1,12 @@
 require "stringio"
 require_relative "view"
 
-java_import java.net.URLEncoder
-
 class Harbor
   class Response
+
+    java_import java.net.URLEncoder
+    
+    include_package "org.eclipse.jetty.util"
     
     ENCODED_CHARSET = "UTF-8"
     
@@ -79,31 +81,31 @@ class Harbor
       end
     end
 
-    def stream_file(path_or_io, content_type = nil)
-      io = BlockIO.new(path_or_io)
-
-      if io.path && (header = @request.headers["HTTP_X_SENDFILE_TYPE"])
-        case header
-        when "X-Sendfile"
-          @headers["X-Sendfile"] = io.path
-        when "X-Accel-Redirect"
-          if mapping = @request.headers['HTTP_X_ACCEL_MAPPING']
-            internal, external = mapping.split('=', 2).map { |p| p.strip }
-            @headers["X-Accel-Redirect"] = io.path.sub(/^#{Regexp::escape(internal)}/i, external)
-          else
-            @headers["X-Accel-Redirect"] = io.path
-          end
-        else
-          raise UnsupportedSendfileTypeError.new(header)
-        end
-      else
-        @io = io
-      end
-
-      self.size = io.size
-      self.content_type = content_type || Harbor::Mime.mime_type(::File.extname(io.path.to_s))
-      nil
-    end
+    # def stream_file(path_or_io, content_type = nil)
+    #   io = BlockIO.new(path_or_io)
+    # 
+    #   if io.path && (header = @request.headers["HTTP_X_SENDFILE_TYPE"])
+    #     case header
+    #     when "X-Sendfile"
+    #       @headers["X-Sendfile"] = io.path
+    #     when "X-Accel-Redirect"
+    #       if mapping = @request.headers['HTTP_X_ACCEL_MAPPING']
+    #         internal, external = mapping.split('=', 2).map { |p| p.strip }
+    #         @headers["X-Accel-Redirect"] = io.path.sub(/^#{Regexp::escape(internal)}/i, external)
+    #       else
+    #         @headers["X-Accel-Redirect"] = io.path
+    #       end
+    #     else
+    #       raise UnsupportedSendfileTypeError.new(header)
+    #     end
+    #   else
+    #     @io = io
+    #   end
+    # 
+    #   self.size = io.size
+    #   self.content_type = content_type || Harbor::Mime.mime_type(::File.extname(io.path.to_s))
+    #   nil
+    # end
 
     def send_file(name, path_or_io, content_type = nil)
       stream_file(path_or_io, content_type)
@@ -214,24 +216,20 @@ class Harbor
     end
 
     HEADER_BLACKLIST = ['X-Sendfile', "Content-Disposition"]
-    def redirect(url, params = nil)
-      url = URI.parse(url)
-      params ||= {}
+    def redirect(url, params = {})
+      uri = URI.parse(url)
+      params = org.eclipse.jetty.util.MultiMap.new(params)
 
-      if url.query
-        params.merge!(Rack::Utils.parse_query(url.query))
-        url.query = nil
+      if query_string = uri.query
+        UrlEncoded.decodeTo(query_string, params, "UTF-8");
+        uri.query = nil
       end
 
-      if @request && !@request.session? && !messages.empty? && !messages.expired?
-        messages.each { |key, value| params["messages[#{key}]"] = value }
-      end
-
-      url.query = Rack::Utils::build_query(params) if params && params.any?
+      uri.query = UrlEncoded.encode(params, "UTF-8", true) if params.any?
 
       self.status = 303
       self.headers.merge!({
-        "Location" => url.to_s,
+        "Location" => uri.to_s,
         "Content-Type" => "text/html"
       })
       HEADER_BLACKLIST.each{|banned_header| self.headers.delete(banned_header)}

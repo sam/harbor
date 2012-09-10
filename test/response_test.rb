@@ -315,18 +315,6 @@ class ResponseTest < MiniTest::Unit::TestCase
     assert_equal "/redirect", response.headers["Location"]
   end
 
-  def test_redirect_with_encoded_url_and_params
-    request = Harbor::Request.new(Test::HttpRequest.new)
-    response = Harbor::Response.new(request)
-
-    response.message("error", "Error")
-    response.redirect("/redirect?key=Stuff", {})
-    location = response.headers["Location"]
-    root, query = location.split(/\?/).sort
-    assert_equal "/redirect", root
-    assert_equal [ "key=Stuff", "messages%5Berror%5D=Error" ].sort, query.split(/\&/).sort
-  end
-
   private
 
   def with_cache

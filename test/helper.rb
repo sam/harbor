@@ -8,107 +8,16 @@ if ENV['COVERAGE']
   end
 end
 
-require "pathname"
 require "minitest/autorun"
-require 'mocha'
-require "uri"
-require Pathname(__FILE__).dirname.parent + "lib/harbor"
-require "harbor/mail/mailer"
-require "builder"
+require "minitest/pride"
+require "minitest/wscolor"
 
-(Harbor::Mail::Builder.private_instance_methods - Object.private_instance_methods).each do |method|
-  Harbor::Mail::Builder.send(:public, method)
-end
+$:.unshift (Pathname(__FILE__).dirname.parent + "lib").to_s
+require "harbor"
 
-class Time
-
-  class << self
-
-    ##
-    # Time.warp
-    #   Allows you to stub-out Time.now to return a pre-determined time for calls to Time.now.
-    #   Accepts a Fixnum to be added to the current Time.now, or an instance of Time
-    #
-    #   item.expires_at = Time.now + 10
-    #   assert(false, item.expired?)
-    #
-    #   Time.warp(10) do
-    #     assert(true, item.expired?)
-    #   end
-    ##
-    def warp(time)
-      @warp = time.is_a?(Fixnum) ? (Time.now + time) : time
-      yield
-      @warp = nil
-    end
-
-    # class load mojo to prevent multiple-aliasing of Time.now when helper.rb gets reloaded between tests
-    unless @included
-      alias original_now now
-    end
-    @included = true
-
-    def now
-      @warp || original_now
-    end
-
-  end
-
-end
-
-class String
-
-  ##
-  # Remove whitespace margin.
-  #
-  # @return [String] receiver with whitespace margin removed
-  #
-  # @api public
-  def margin
-    lines = self.dup.split($/)
-
-    min_margin = 0
-    lines.each do |line|
-      if line =~ /^(\s+)/ && (min_margin == 0 || $1.size < min_margin)
-        min_margin = $1.size
-      end
-    end
-    lines.map { |line| line.sub(/^\s{#{min_margin}}/, '') }.join($/)
-  end
-
-end
-
-class Test
-  class HttpRequest
-
-    include javax.servlet.http.HttpServletRequest
-    
-    def initialize(headers = {}, cookies = [])
-      @headers = headers
-      @cookies = cookies
-    end
-    
-    def header(name)
-      headers(name)
-    end
-
-    def headers(name)
-      @headers[name]
-    end
-    
-    def cookies
-      @cookies
-    end
-    
-    def session
-      @session ||= {}
-    end
-    
-    def messages
-      @messages ||= []
-    end
-  end
-end
+require_relative "helpers/time"
+require_relative "helpers/string"
+require_relative "helpers/test/request"
 
 class MiniTest::Unit::TestCase
 
