@@ -4,9 +4,13 @@ require_relative "view"
 class Harbor
   class Response
 
+    # TODO: This should be replaced with
+    # org.eclipse.jetty.util.UrlEncoded usage
+    # for consistency.
     java_import java.net.URLEncoder
     
-    include_package "org.eclipse.jetty.util"
+    java_import org.eclipse.jetty.util.MultiMap
+    java_import org.eclipse.jetty.util.UrlEncoded
     
     ENCODED_CHARSET = "UTF-8"
     
@@ -218,14 +222,14 @@ class Harbor
     HEADER_BLACKLIST = ['X-Sendfile', "Content-Disposition"]
     def redirect(url, params = {})
       uri = URI.parse(url)
-      params = org.eclipse.jetty.util.MultiMap.new(params)
+      params = MultiMap.new(params)
 
       if query_string = uri.query
-        UrlEncoded.decodeTo(query_string, params, "UTF-8");
+        UrlEncoded.decodeTo(query_string, params, ENCODED_CHARSET);
         uri.query = nil
       end
 
-      uri.query = UrlEncoded.encode(params, "UTF-8", true) if params.any?
+      uri.query = UrlEncoded.encode(params, ENCODED_CHARSET, true) if params.any?
 
       self.status = 303
       self.headers.merge!({
