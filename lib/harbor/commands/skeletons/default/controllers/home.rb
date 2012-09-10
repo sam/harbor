@@ -9,12 +9,12 @@ class <@= app_class @>
       #
       # @ex_form.template = "another_form_template"
 
-      @ex_form = ExampleForm.new(request, response)
+      @ex_form = ExampleForm.new(request.params)
       render "home/index"
     end
 
     post "/new_user" do
-      @ex_form = ExampleForm.new(request, response)
+      @ex_form = ExampleForm.new(request.params)
       if @ex_form.valid?
         render "home/success"
       else

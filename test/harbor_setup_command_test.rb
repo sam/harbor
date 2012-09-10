@@ -34,6 +34,7 @@ class HarborSetupCommandTest < MiniTest::Unit::TestCase
       petshop/config.ru
       petshop/controllers
       petshop/controllers/home.rb
+      petshop/controllers/users.rb
       petshop/db
       petshop/db/001_create_users.rb
       petshop/env
@@ -66,6 +67,10 @@ class HarborSetupCommandTest < MiniTest::Unit::TestCase
       petshop/views/home
       petshop/views/home/index.html.erb
       petshop/views/home/success.html.erb
+      petshop/views/users
+      petshop/views/users/edit.html.erb
+      petshop/views/users/new.html.erb
+      petshop/views/users/success.html.erb
     }
 
     skeleton = Dir["#{@app_root}/**/*"].map { |path| path.sub "#{@temp_path}/", "" }
@@ -85,12 +90,12 @@ class HarborSetupCommandTest < MiniTest::Unit::TestCase
             #
             # @ex_form.template = "another_form_template"
 
-            @ex_form = ExampleForm.new(request, response)
+            @ex_form = ExampleForm.new(request.params)
             render "home/index"
           end
 
           post "/new_user" do
-            @ex_form = ExampleForm.new(request, response)
+            @ex_form = ExampleForm.new(request.params)
             if @ex_form.valid?
               render "home/success"
             else

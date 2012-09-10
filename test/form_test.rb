@@ -15,44 +15,43 @@ class FormTest < MiniTest::Unit::TestCase
   end
 
   def setup
-    @request = Harbor::Test::Request.new
-    @response = Harbor::Response.new(@request)
+    @params = {}
   end
 
   def test_sanity
-    form = Harbor::Form.new(@request, @response)
+    form = Harbor::Form.new(@params)
     refute_nil form
-    tf = SimplestForm.new(@request, @response)
+    tf = SimplestForm.new(@params)
     refute_nil tf
   end
 
   def test_form_with_attributes
-    @request.params[:memo] = "A memo."
-    @request.params[:first_name] = "James"
-    @request.params[:age] = 21
-    tf = TestForm.new(@request, @response)
+    @params[:memo] = "A memo."
+    @params[:first_name] = "James"
+    @params[:age] = 21
+    tf = TestForm.new(@params)
     assert tf.valid?
 
-    @request.params[:age] = 9
-    tf = TestForm.new(@request, @response)
+    @params[:age] = 9
+    tf = TestForm.new(@params)
     refute tf.valid?
 
-    @request.params[:age] = 21
-    @request.params[:irhackingu] = ';DROP TABLE users;--'
-    tf = TestForm.new(@request, @response)
+    @params[:age] = 21
+    @params[:irhackingu] = ';DROP TABLE users;--'
+    tf = TestForm.new(@params)
     assert_nil tf[:irhackingu]
     assert tf.valid?
   end
 
   def test_boolean_field
-    @request[:score] = '9000'
-    # @request[:awesome] = false
-    bf = BooleanForm.new(@request, @response)
+    @params[:score] = '9000'
+    # @params[:awesome] = false
+    bf = BooleanForm.new(@params)
     assert bf.valid?
 
     ['false', 'true', false, true, nil].each do |bool|
-      @request[:awesome] = bool
-      bf = BooleanForm.new(@request, @response)
+      @params[:awesome] = bool
+      bf = BooleanForm.new(@params)
       assert bf.valid?
     end
 

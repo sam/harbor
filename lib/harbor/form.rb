@@ -5,14 +5,12 @@ class Harbor
   class Form < Bureaucrat::Forms::Form
     extend Bureaucrat::Quickfields
 
-    def initialize(request, response)
-      @request = request
-      @response = response
-
-      super(@request.params)
+    def initialize(params = {})
+      @params = params
+      super(@params)
     end
 
-    attr_reader :request, :response
+    attr_reader :params
     attr_accessor :template
 
     def errors
@@ -28,11 +26,6 @@ class Harbor
       name = template ? template : self.class.name.underscore
       if Harbor::View.exists?(name)
         view = Harbor::View.new(name, {name.to_sym => self})
-        view.context.instance_eval %Q{
-          def #{self.class.name.underscore}
-            @#{self.class.name.underscore}
-          end
-        }
         return view.content
       end
 
