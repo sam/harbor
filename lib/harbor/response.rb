@@ -24,7 +24,7 @@ class Harbor
 
     def initialize(request)
       @request = request
-      @headers = {}
+      @headers = { "Content-Type" => "text/plain" }
       @status = 200
       @errors = Harbor::Errors.new
     end
@@ -51,7 +51,11 @@ class Harbor
     end
 
     def content_type
-      @headers["Content-Type"]
+      if self.status == 304
+        nil
+      else
+        @headers["Content-Type"] || self.content_type = "html"
+      end
     end
 
     def puts(value)
@@ -221,7 +225,10 @@ class Harbor
 
     HEADER_BLACKLIST = ['X-Sendfile', "Content-Disposition"]
     def redirect(url, params = {})
-      uri = URI.parse(url)
+      uri = java.net.URI.new(url)
+      
+      # scheme = uri.scheme || request.scheme
+      
       params = MultiMap.new(params)
 
       if query_string = uri.query

@@ -17,4 +17,16 @@ describe Harbor::Response do
       query.split(/\&/).sort.must_equal [ "key=Stuff", "other%5Bthing%5D=value" ]
     end
   end
+  
+  describe "printing" do
+    it "must supply default headers if none are specified" do
+      request = Harbor::Test::request()
+      response = Harbor::Response.new(request)
+      
+      response.print "Hello World"
+      
+      response.headers.must_equal({ "Content-Type" => "text/html", "Content-Length" => 11 })
+    end
+  end
+  
 end

@@ -10,12 +10,16 @@ class Harbor
       include javax.servlet.http.HttpServletRequest
   
       def initialize(uri, headers, session, cookies)
-        @uri = uri
+        @uri = java.net.URI.new(uri)
         @headers = headers
         @session = session
         @cookies = cookies
       end
   
+      def scheme
+        @uri.scheme
+      end
+      
       def header(name)
         headers(name)
       end

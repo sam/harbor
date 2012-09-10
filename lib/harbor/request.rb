@@ -3,41 +3,6 @@ class Harbor
 
     include_package "javax.servlet.http"
     
-    BOT_AGENTS = [
-      /yahoo.*slurp/i,
-      /googlebot/i,
-      /msnbot/i,
-      /charlotte.*searchme/i,
-      /twiceler.*robot/i,
-      /dotbot/i,
-      /gigabot/i,
-      /yanga.*bot/i,
-      /gaisbot/i,
-      /becomebot/i,
-      /yandex/i,
-      /catchbot/i,
-      /cazoodlebot/i,
-      /jumblebot/i,
-      /librabot/i,
-      /jyxobot/i,
-      /mlbot/i,
-      /cipinetbot/i,
-      /funnelbot/i,
-      /mj12bot/i,
-      /spinn3r/i,
-      /nutch.*bot/i,
-      /oozbot/i,
-      /robotgenius/i,
-      /snapbot/i,
-      /tmangobot/i,
-      /yacybot/i,
-      /rpt.*httpclient/i,
-      /indy.*library/i,
-      /baiduspider/i,
-      /WhistleBlower/i,
-      /Pingdom/
-    ].freeze
-
     attr_accessor :layout
     
     def initialize(http_request)
@@ -47,6 +12,14 @@ class Harbor
       
       @http_request = http_request
     end
+    
+    ## BEGIN: Forwarded methods
+    
+    def scheme
+      @http_request.scheme
+    end
+    
+    ## END: Forwarded methods
 
     class Headers
       def initialize(http_request)

@@ -7,7 +7,7 @@ class ResponseTest < MiniTest::Unit::TestCase
   def setup
     Harbor::View::paths.unshift Pathname(__FILE__).dirname + "fixtures/views"
     Harbor::View::layouts.default("layouts/application")
-    @request = Harbor::Request.new(Test::HttpRequest.new)
+    @request = Harbor::Test::request
     @response = Harbor::Response.new(@request)
   end
 
@@ -81,11 +81,6 @@ class ResponseTest < MiniTest::Unit::TestCase
     @response.delete_cookie('session_id')
     assert_equal(["session_id=; path=/; expires=Thu, 01-Jan-1970 00:00:00 GMT"], @response['Set-Cookie'])
     @response['Set-Cookie'] = nil
-  end
-
-  def test_standard_headers
-    @response.print "Hello World"
-    assert_equal({ "Content-Type" => "text/html", "Content-Length" => "Hello World".size.to_s }, @response.to_a[1])
   end
 
   def test_render_html_view_with_layout
