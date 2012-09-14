@@ -11,6 +11,6 @@ class ExampleForm < Harbor::Form
                   ['AL', 'Alabama'],
                   ['AK', 'Arkansas'],
                   ['AR', 'Arizona']], required: false
-  text :memo, label: 'Memo for this user', required: false
+  text :memo, label: 'Memo for this user', required: false, html_attrs: {cols: '50', rows: '20', :class => 'span4'}
 end
 

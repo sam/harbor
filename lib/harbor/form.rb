@@ -1,5 +1,5 @@
 require 'bureaucrat'
-require 'bureaucrat/quickfields'
+require 'harbor/form/quickfields'
 
 class Harbor
   # Base form class for Harbor. This class provides the ability to store form
@@ -62,7 +62,7 @@ class Harbor
   #   <%= @user_form[:first_name].data %>
   #
   class Form < Bureaucrat::Forms::Form
-    extend Bureaucrat::Quickfields
+    extend Quickfields
 
     def initialize(params = {})
       @params = params
@@ -93,3 +93,4 @@ class Harbor
 
   end
 end
+
