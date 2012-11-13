@@ -1,6 +1,5 @@
-require "java"
 require "rubygems"
-require "bundler/setup" unless Object::const_defined?("Bundler")
+require "doubleshot/setup"
 
 require "singleton"
 
@@ -8,10 +7,10 @@ require "listen"
 
 class Watcher
   include Singleton
-  
+
   def initialize
     @interrupted = false
-    
+
     # Hit Ctrl-C once to re-run all specs; twice to exit the program.
     Signal.trap("INT") do
       if @interrupted
@@ -24,14 +23,14 @@ class Watcher
       end
     end
   end
-  
+
   def run
     # Output here just so you know when changes will be
     # picked up after you start the program.
     puts "Listening for changes..."
     listener.start
   end
-  
+
   private
   def listener
     defaults = %w{ test lib controllers db env forms helpers models views }
@@ -44,10 +43,10 @@ class Watcher
       end
     end
   end
-  
-  def run_single_spec(underscored_name)  
+
+  def run_single_spec(underscored_name)
     spec = Pathname("test/#{underscored_name}_spec.rb")
-    
+
     if spec.exist?
       puts "\n --- Running #{spec.basename('.rb')} ---\n\n"
       org.jruby.Ruby.newInstance.executeScript <<-RUBY, spec.to_s
